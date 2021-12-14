@@ -1,16 +1,19 @@
 "use strict"
 
+// control the click of tab
 function openTab(evt, tabName) {
   var tabcontent = document.getElementsByClassName("tabcontent");
   var tablinks = document.getElementsByClassName("tablinks");
 
+  // remove classes of all tabs --> hide and show all remove
   for (let i = 0; i < 3; i++) {
     tabcontent[i].style.display = "none";
     tablinks[i].className = tablinks[i].className.replace(" active", "");
     tablinks[i].className = tablinks[i].className.replace(" tabButtonSelected", "");
 
   }
-
+  
+  // add back the classes to the selected tab
   $(`#${tabName}`).css("display", "block");
   $(`#${tabName}`).addClass("active");
   $(`#btn-${tabName}`).addClass("tabButtonSelected");
@@ -22,6 +25,7 @@ function openTab(evt, tabName) {
   console.log(`#${tabName}`)
 
 }
+
 
 function displayCards(cardCountToDisplay){
 
@@ -76,9 +80,12 @@ function displayCards(cardCountToDisplay){
 $(document).ready(() => {
   sessionStorage.clear()
   // default open
+
+  // default card count--> tab 1 is open by default
   sessionStorage.setItem("cardNumber", 48);
   $("#btn-tabs-1").click()
 
+  // set session storage
   $("#save_settings").click(() => {
     var playerName = $("#player_name").val();
     var cardNumber = $("#num_cards").val();
@@ -87,9 +94,11 @@ $(document).ready(() => {
       window.alert("Please enter your name.")
     }
 
+    // set player name and card number
     sessionStorage.setItem("playerName", playerName);
     sessionStorage.setItem("cardNumber", cardNumber);
     displayCards(sessionStorage.getItem("playerName"))
+    // display player name on screen
     $("#player").html("Player: " + sessionStorage.getItem("playerName"))
 
     console.log(playerName, cardNumber)
