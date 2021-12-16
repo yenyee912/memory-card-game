@@ -26,16 +26,39 @@ function openTab(evt, tabName) {
 
 }
 
+function shuffleCardArr(arr){
+
+  let currentIndex = arr.length
+  let randomIndex;
+  // console.log(randomIndex)
+
+  // While there remain elements to shuffle-->> currentIndex != 0
+  while (currentIndex != 0) {
+    // Pick a remaining element
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    // console.log(Math.floor(Math.random() * currentIndex), (Math.random() * currentIndex), currentIndex)
+    currentIndex--;
+
+    // And swap it with the current element
+    [arr[currentIndex], arr[randomIndex]] = [arr[randomIndex], arr[currentIndex]];
+  }
+
+  return arr
+
+}
 
 function displayCards(cardCountToDisplay){
-
+// clear the previous card disply
   let cardList= []
-  let row, col
-  $("#cards").empty()
-
-  for (let i=1; i<= 24; i++){
-    cardList.push(`card${i}`)
+  for (let i = 1; i <= 24; i++) {
+    cardList.push(`card_${i}`)
   }
+
+  console.log(cardList)
+
+  $("#cards").empty() 
+  var row, col;
+
   if (cardCountToDisplay== 8){
     row=8
     col=1
@@ -66,13 +89,24 @@ function displayCards(cardCountToDisplay){
     col = 6
   }
 
-  function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
-  }  
+  // pairs to pick
+  let pairsToPick = cardCountToDisplay / 2
+  console.log("pairsToPick", pairsToPick)
+  let pickedPair= []
+  while (pairsToPick --){
+    let randomIndex = Math.floor(Math.random() * cardList.length)
+    pickedPair.push(cardList[randomIndex])
+    cardList.splice(randomIndex, 1)
+    // console.log(pairsToPick)
+    // break;
+  }
+
+  pickedPair = shuffleCardArr(pickedPair)
+  console.log(cardList)
 
   for (let x=0; x<row; x++){
     for (let y=0; y<col; y++){
-      $("#cards").prepend(`<img src="./images/back.png" id="${getRandomArbitrary(1,24)}" />`)
+      $("#cards").prepend(`<img src="./images/back.png" />`)
     }
   }
 }
@@ -94,19 +128,21 @@ $(document).ready(() => {
       window.alert("Please enter your name.")
     }
 
-    // set player name and card number
-    sessionStorage.setItem("playerName", playerName);
-    sessionStorage.setItem("cardNumber", cardNumber);
-    displayCards(sessionStorage.getItem("playerName"))
-    // display player name on screen
-    $("#player").html("Player: " + sessionStorage.getItem("playerName"))
+    else{    
+      // set player name and card number
+      sessionStorage.setItem("playerName", playerName);
+      sessionStorage.setItem("cardNumber", cardNumber);
+      // display player name on screen
+      $("#player").html("Player: " + sessionStorage.getItem("playerName"))
+    
+      displayCards(sessionStorage.getItem("cardNumber"))
 
-    console.log(playerName, cardNumber)
+      // console.log(playerName, cardNumber)
+    }
+
+
 
   })
-
-
-
 
 
 })
