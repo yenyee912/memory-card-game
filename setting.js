@@ -57,11 +57,11 @@ function checkSelectedPairs(card1, card2){
 
 // when a card is selected
 function showCardFront(cardName) { 
-  console.log(cardName)
-
   let cardIndex= cardName.split("_") 
   $(`#${cardName}`).attr("src", `./images/card_${cardIndex[1]}.png`)
 
+  // TODO: CHECK IF THE CARD(EVERY) SELECTED ARE MATCHED --> avoid select repeatedly
+  
   let currentSelectedPair = JSON.parse(sessionStorage.getItem("currentSelectedPair"))
 
   if (currentSelectedPair.pickA==""){
@@ -79,26 +79,25 @@ function showCardFront(cardName) {
     }
 
     else{
-      showCardBack(currentSelectedPair.pickA, currentSelectedPair.pickB)
-      currentSelectedPair.pickA= ""
-      currentSelectedPair.pickB= ""
+      // alert("fan mian!")
+      // set timer to flip
+      window.setTimeout(showCardBack, 1000)
     }
   }
-
-
   sessionStorage.setItem("currentSelectedPair", JSON.stringify(currentSelectedPair))
-  console.log(sessionStorage.getItem("currentSelectedPair"))
-
-
-
+  // console.log(sessionStorage.getItem("currentSelectedPair"))
 
 }
 
 // take in cards which need to flip
-function showCardBack(card1, card2){
-  console.log(card1, card2)
-  $(`#${card1}`).attr("src", "./images/back.png")
-  $(`#${card2}`).attr("src", "./images/back.png")
+function showCardBack(){
+  let cardPair = JSON.parse(sessionStorage.getItem("currentSelectedPair"))
+  // let card2 = JSON.parse(sessionStorage.getItem("currentSelectedPair")).pickB
+  console.log(cardPair.pickB, 'sasa')
+  $(`#${cardPair.pickA}`).attr("src", "./images/back.png")
+  $(`#${cardPair.pickB}`).attr("src", "./images/back.png")
+  sessionStorage.setItem("currentSelectedPair", JSON.stringify({pickA: "", pickB: ""}))
+
 }
 
 function calculateHighestScore(){
@@ -197,7 +196,7 @@ function displayCards(cardCountToDisplay) {
   }
 
   pickedPair = shuffleCardArr(pickedPair)
-  console.log(pickedPair)
+  // console.log(pickedPair)
 
   let appendCount = pickedPair.length - 1
   // for (let x=0; x<row; x++){
