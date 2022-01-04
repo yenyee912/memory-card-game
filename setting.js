@@ -21,101 +21,107 @@ function openTab(evt, tabName) {
     displayCards(sessionStorage.getItem("cardNumber"))
   }
 
-  // console.log(`#${tabName}`)
+  $("#save_settings").click(() => {
+    var playerName = $("#player_name").val();
+    var cardNumber = $("#num_cards").val();
 
- $("#cards").prepend(`
- <div>
-  <img src="./images/back.png" id="card_1_a" onclick="showCardFront('card_1_a')" />
-</div>`)
 
-  $("#cards").prepend(`
- <div>
-  <img src="./images/back.png" id="card_1_b" onclick="showCardFront('card_1_b')" />
-</div>`)
+    if (playerName == "") {
+      window.alert("Please enter your name.")
+    }
 
-  $("#cards").prepend(`
- <div>
-  <img src="./images/back.png" id="card_2_a" onclick="showCardFront('card_2_a')" />
-</div>`)
-
+    else {
+      // set player name and card number
+      sessionStorage.setItem("playerName", playerName);
+      sessionStorage.setItem("cardNumber", cardNumber);
+      // display player name on screen
+      $("#player").html("Player: " + sessionStorage.getItem("playerName"))
+    }
+  })
 }
 
-function checkSelectedPairs(card1, card2){
+function checkSelectedPairs(card1, card2) {
   card1 = card1.split("_")
   card2 = card2.split("_")
 
-  if (card1[1] == card2[1] && card1[2] != card2[2]){
+  if (card1[1] == card2[1] && card1[2] != card2[2]) {
     // matched if only if card1 and card2 are same image index, and card1 is not card2
     return true
   }
 
-  else{
+  else {
     return false
   }
 
 }
 
 // when a card is selected
-function showCardFront(cardName) { 
-  let cardIndex= cardName.split("_") 
-  $(`#${cardName}`).attr("src", `./images/card_${cardIndex[1]}.png`)
+function showCardFront(cardName) {
+  let cardIndex = cardName.split("_")
 
   // TODO: CHECK IF THE CARD(EVERY) SELECTED ARE MATCHED --> avoid select repeatedly
-  
-  let currentSelectedPair = JSON.parse(sessionStorage.getItem("currentSelectedPair"))
+  if ($(`#${cardName}`).attr("src") == "./images/back.png") {
+    $(`#${cardName}`).attr("src", `./images/card_${cardIndex[1]}.png`)
 
-  if (currentSelectedPair.pickA==""){
-    currentSelectedPair.pickA = cardName
-  }
 
-  else if (currentSelectedPair.pickB == ""){
-    currentSelectedPair.pickB = cardName
 
-    let isMatched = checkSelectedPairs(currentSelectedPair.pickA, currentSelectedPair.pickB)
 
-    if (isMatched){
-      calculateCorrectness()
+    let currentSelectedPair = JSON.parse(sessionStorage.getItem("currentSelectedPair"))
 
+    if (currentSelectedPair.pickA == "") {
+      currentSelectedPair.pickA = cardName
+      sessionStorage.setItem("currentSelectedPair", JSON.stringify(currentSelectedPair))
     }
 
-    else{
-      // alert("fan mian!")
-      // set timer to flip
-      window.setTimeout(showCardBack, 1000)
-    }
-  }
-  sessionStorage.setItem("currentSelectedPair", JSON.stringify(currentSelectedPair))
-  // console.log(sessionStorage.getItem("currentSelectedPair"))
+    else if (currentSelectedPair.pickB == "") {
+      currentSelectedPair.pickB = cardName
+      sessionStorage.setItem("currentSelectedPair", JSON.stringify(currentSelectedPair))
 
+      let isMatched = checkSelectedPairs(currentSelectedPair.pickA, currentSelectedPair.pickB)
+      if (isMatched) {
+        calculateCorrectness()
+        sessionStorage.setItem("currentSelectedPair", JSON.stringify({ pickA: "", pickB: "" }))
+      }
+
+      else {
+        // set timer to flip
+        window.setTimeout(showCardBack, 1000)
+        /*not reset the session storage here cuz still need the card name to flip (showCardBack)*/
+      }
+    }
+    console.log(sessionStorage.getItem("currentSelectedPair"))
+  }
+
+  else {
+    console.log('this card has been matched')
+  }
 }
 
-// take in cards which need to flip
-function showCardBack(){
+function showCardBack() {
   let cardPair = JSON.parse(sessionStorage.getItem("currentSelectedPair"))
-  // let card2 = JSON.parse(sessionStorage.getItem("currentSelectedPair")).pickB
-  console.log(cardPair.pickB, 'sasa')
+
   $(`#${cardPair.pickA}`).attr("src", "./images/back.png")
   $(`#${cardPair.pickB}`).attr("src", "./images/back.png")
-  sessionStorage.setItem("currentSelectedPair", JSON.stringify({pickA: "", pickB: ""}))
+  sessionStorage.setItem("currentSelectedPair", JSON.stringify({ pickA: "", pickB: "" }))
 
 }
 
-function calculateHighestScore(){
-  let highScore=0
+function calculateHighestScore() {
+  let highScore = 0
   sessionStorage.setItem("highestScore", highScore)
 }
 
-function calculateCorrectness(){
+function calculateCorrectness() {
   let totalPair = sessionStorage.getItem("cardNumber")
   let matchedPair = sessionStorage.getItem("matchedPair")
 
-  if (matchedPair / totalPair == 1){
+  if (matchedPair / totalPair == 1) {
     // save the game over score
     calculateHighestScore()
 
   }
 
-  return matchedPair/ totalPair
+  return matchedPair / totalPair
 
 }
 
@@ -184,15 +190,15 @@ function displayCards(cardCountToDisplay) {
 
   // pairs to pick
   let pairsToPick = cardCountToDisplay / 2
+  $("#correct").html(`Correct: 0/${pairsToPick}`)
+
   console.log("pairsToPick", pairsToPick)
   let pickedPair = []
   while (pairsToPick--) {
     let randomIndex = Math.floor(Math.random() * cardList.length)
-    pickedPair.push(cardList[randomIndex])
-    pickedPair.push(cardList[randomIndex])
+    pickedPair.push(cardList[randomIndex]+"_a")
+    pickedPair.push(cardList[randomIndex]+"_b")
     cardList.splice(randomIndex, 1)
-    // console.log(pairsToPick)
-    // break;
   }
 
   pickedPair = shuffleCardArr(pickedPair)
@@ -208,45 +214,44 @@ function displayCards(cardCountToDisplay) {
   // }
 }
 
+
+
+// driver
 $(document).ready(() => {
   sessionStorage.clear()
 
   // default card count--> tab 1 is open by default
-  // clean selectedPair
-  // 
+  // clean previous data
   sessionStorage.setItem("cardNumber", 48);
-  sessionStorage.setItem("currentSelectedPair", JSON.stringify({pickA: "", pickB: ""}))
-  sessionStorage.setItem("highScore", 0)
-  sessionStorage.setItem("correctness", 0)
+  sessionStorage.setItem("currentSelectedPair", JSON.stringify({ pickA: "", pickB: "" }))
   sessionStorage.setItem("allScore", JSON.stringify([]))
 
-    // default open
-  $("#btn-tabs-1").click()
+  // for display
+  sessionStorage.setItem("playerName", "John Doe");
+  sessionStorage.setItem("highScore", 0)
+  sessionStorage.setItem("correct", 0)
 
-  // set session storage
-  $("#save_settings").click(() => {
-    var playerName = $("#player_name").val();
-    var cardNumber = $("#num_cards").val();
+  // default open
+  $("#btn-tabs-3").click()
 
-    if (playerName == "") {
-      window.alert("Please enter your name.")
-    }
+  $("#cards").prepend(`
+ <div>
+  <img src="./images/back.png" id="card_1_a" onclick="showCardFront('card_1_a')" />
+</div>`)
 
-    else {
-      // set player name and card number
-      sessionStorage.setItem("playerName", playerName);
-      sessionStorage.setItem("cardNumber", cardNumber);
-      // display player name on screen
-      $("#player").html("Player: " + sessionStorage.getItem("playerName"))
+  $("#cards").prepend(`
+ <div>
+  <img src="./images/back.png" id="card_1_b" onclick="showCardFront('card_1_b')" />
+</div>`)
 
-      displayCards(sessionStorage.getItem("cardNumber"))
+  $("#cards").prepend(`
+ <div>
+  <img src="./images/back.png" id="card_2_a" onclick="showCardFront('card_2_a')" />
+</div>`)
 
-      // console.log(playerName, cardNumber)
-    }
-
-
-
-  })
-
+  $("#cards").prepend(`
+ <div>
+  <img src="./images/back.png" id="card_3_a" onclick="showCardFront('card_3_a')" />
+</div>`)
 
 })
